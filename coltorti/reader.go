@@ -36,6 +36,81 @@ type ColtortiProductInput struct {
 	FTA           bool
 }
 
+func (pd *ColtortiProductInput) ToProductTemplate() []string {
+	optionStrings := []string{}
+	optionQuantityStrings := []string{}
+	for _, optionName := range pd.SizeOptions {
+		optionStrings = append(optionStrings, optionName.SizeInfo+optionName.SizeName)
+		optionQuantityStrings = append(optionQuantityStrings, strconv.Itoa(optionName.Quantity))
+	}
+
+	return []string{
+		"신상품",
+		"50000805",
+		pd.Name,
+		strconv.Itoa(pd.Quantity),
+		"-",
+		"-",
+		"mainimagefile",
+		"imagefiles",
+		"detailimage",
+		"",
+		"",
+		"",
+		pd.Brand,
+		"",
+		"",
+		"과세상품",
+		"Y",
+		"Y",
+		"0201038",
+		"올오프",
+		"N",
+		"택배",
+		"무료",
+		"0",
+		"선결제",
+		"",
+		"",
+		"80000",
+		"80000", //교환배송비
+		"",
+		"",
+		"0",
+		"%",
+		"0",
+		"%",
+		"%",
+		"0",
+		"0",
+		"0",
+		"0",
+		"%",
+		"0",
+		"0",
+		"0",
+		"0",
+		"0",
+		"6", // 무이자 할부개월
+		"",  // 사은품
+		"단독형",
+		"사이즈",
+		strings.Join(optionStrings, ","),
+		strconv.Itoa(CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType)),
+		strings.Join(optionQuantityStrings, ","),
+		"",
+		"",
+		"",
+		"",
+		pd.Name,
+		pd.ProductID,
+		"",
+		pd.Brand,
+		"N",
+	}
+
+}
+
 // Product Url
 // Image
 // Image1
@@ -85,6 +160,7 @@ func ReadFile(filePath string) []ColtortiProductInput {
 	if err != nil {
 		log.Panicln("file not found", err)
 	}
+	defer file.Close()
 
 	// csv reader 생성
 	rdr := csv.NewReader(bufio.NewReader(file))
