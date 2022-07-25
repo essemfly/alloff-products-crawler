@@ -1,0 +1,6 @@
+package utils
+
+const (
+	EURO_EXCHANGE_RATE   = 1350
+	DOLLOR_EXCHANGE_RATE = 1315
+)
