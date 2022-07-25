@@ -1,5 +1,12 @@
 package domain
 
+import (
+	"strconv"
+	"strings"
+
+	"github.com/essemfly/alloff-products/coltorti"
+)
+
 type ProductOption struct {
 	SizeInfo string
 	SizeName string
@@ -29,10 +36,76 @@ type Product struct {
 
 func (pd *Product) ToProductTemplate() [][]string {
 	records := [][]string{}
+	optionStrings := []string{}
+	optionQuantityStrings := []string{}
+	for _, optionName := range pd.SizeOptions {
+		optionStrings = append(optionStrings, optionName.SizeInfo+optionName.SizeName)
+		optionQuantityStrings = append(optionQuantityStrings, strconv.Itoa(optionName.Quantity))
+	}
+
 	row := []string{
 		"신상품",
 		"50000805",
 		pd.Name,
+		strconv.Itoa(pd.Quantity),
+		"-",
+		"-",
+		"mainimagefile",
+		"imagefiles",
+		"detailimage",
+		"",
+		"",
+		"",
+		pd.Brand,
+		"",
+		"",
+		"과세상품",
+		"Y",
+		"Y",
+		"0201038",
+		"올오프",
+		"N",
+		"택배",
+		"무료",
+		"0",
+		"선결제",
+		"",
+		"",
+		"80000",
+		"80000", //교환배송비
+		"",
+		"",
+		"0",
+		"%",
+		"0",
+		"%",
+		"%",
+		"0",
+		"0",
+		"0",
+		"0",
+		"%",
+		"0",
+		"0",
+		"0",
+		"0",
+		"0",
+		"6", // 무이자 할부개월
+		"",  // 사은품
+		"단독형",
+		"사이즈",
+		strings.Join(optionStrings, ","),
+		strconv.Itoa(coltorti.CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType)),
+		strings.Join(optionQuantityStrings, ","),
+		"",
+		"",
+		"",
+		"",
+		pd.Name,
+		pd.ProductID,
+		"",
+		pd.Brand,
+		"N",
 	}
 	records = append(records, row)
 	return records

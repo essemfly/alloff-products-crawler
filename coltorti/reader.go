@@ -7,9 +7,13 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/essemfly/alloff-products/domain"
 )
+
+type ProductOption struct {
+	SizeInfo string
+	SizeName string
+	Quantity int
+}
 
 type ColtortiProductInput struct {
 	ProductURL    string
@@ -28,7 +32,7 @@ type ColtortiProductInput struct {
 	OriginalPrice float64
 	CurrencyType  string
 	DiscountRate  int
-	SizeOptions   []domain.ProductOption
+	SizeOptions   []ProductOption
 	FTA           bool
 }
 
@@ -146,8 +150,8 @@ func priceParser(priceInCsv string) float64 {
 	return 0.0
 }
 
-func optionParser(sizeInfo, Size, Qty string) []domain.ProductOption {
-	options := []domain.ProductOption{}
+func optionParser(sizeInfo, Size, Qty string) []ProductOption {
+	options := []ProductOption{}
 
 	optionSizes := strings.Split(Size, ",")
 	optionQuantities := strings.Split(Qty, ",")
@@ -158,7 +162,7 @@ func optionParser(sizeInfo, Size, Qty string) []domain.ProductOption {
 			log.Panicln("option quantity parsing error", err)
 		}
 		if optionQuantityInt > 0 {
-			options = append(options, domain.ProductOption{
+			options = append(options, ProductOption{
 				SizeInfo: sizeInfo,
 				SizeName: option,
 				Quantity: optionQuantityInt,
