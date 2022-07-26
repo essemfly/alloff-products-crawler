@@ -16,10 +16,39 @@ import "github.com/essemfly/alloff-products/utils"
 (원가-13%)+20000 해외 배송비 + 원가가 $150이상일 경우 10% 부가세 + 10% 마진 +3000 = 최종가격
 */
 
+const (
+	AlloffDiscount      = 0.13
+	ForeignDevlieryFee  = 20000
+	DomesticDeliveryFee = 3000
+	VAT                 = 0.1
+	Margin              = 0.1
+	ClothingTaxRate     = 0.13
+	NonClothingTaxRate  = 0.08
+	VATCriterion        = 150
+)
+
 func CalculatePrice(originalPrice float64, diescountRate int, currencyType string, productType string, FTA bool) int {
-	// Assume currency type is euro
-	krwOriginalPrice := originalPrice * utils.EURO_EXCHANGE_RATE
-	krwPrice := int(krwOriginalPrice * float64(100-diescountRate) / 100)
-	krwPrice = krwPrice * (100 - diescountRate) / 100
-	return krwPrice
+	ourPrice := originalPrice * float64(100-diescountRate) / 100.0
+	ourPrice = ourPrice * utils.EURO_EXCHANGE_RATE
+	ourPrice = ourPrice + ForeignDevlieryFee
+	taxPrice := 0.0
+	if !FTA && ourPrice < VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
+		if productType == "clothing" {
+			taxPrice = ourPrice * ClothingTaxRate
+		} else {
+			taxPrice = ourPrice * NonClothingTaxRate
+		}
+	}
+	vatPrice := 0.0
+	if ourPrice < VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
+		vatPrice = ourPrice * VAT
+	}
+
+	totalPrice := ourPrice + taxPrice + vatPrice
+	totalPrice = totalPrice * (1 + Margin)
+
+	intPrice := int(totalPrice)
+	intPrice = intPrice / 1000
+	intPrice = intPrice * 1000
+	return intPrice
 }
