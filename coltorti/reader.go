@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/essemfly/alloff-products/utils"
+	"golang.org/x/text/language"
 )
 
 type ProductOption struct {
@@ -44,11 +47,22 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		optionQuantityStrings = append(optionQuantityStrings, strconv.Itoa(optionName.Quantity))
 	}
 
+	nameTranslated, err := utils.TranslateText(language.Korean.String(), pd.Name)
+	if err != nil {
+		log.Println("info translate key err", err)
+	}
+	// descTranslated, err := utils.TranslateText(language.Korean.String(), pd.Description)
+	// if err != nil {
+	// 	log.Println("info translate key err", err)
+	// }
+
+	ourPrice := strconv.Itoa(CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType, "", pd.FTA))
+
 	return []string{
 		"신상품",
 		"50000805",
-		pd.Name,
-		strconv.Itoa(CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType)),
+		nameTranslated,
+		ourPrice,
 		strconv.Itoa(pd.Quantity),
 		"-",
 		"010-4118-1406",
@@ -97,13 +111,13 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		"단독형",
 		"사이즈",
 		strings.Join(optionStrings, ","),
-		strconv.Itoa(CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType)),
+		ourPrice,
 		strings.Join(optionQuantityStrings, ","),
 		"",
 		"",
 		"",
 		"",
-		pd.Name,
+		nameTranslated,
 		pd.ProductID,
 		"",
 		pd.Brand,
