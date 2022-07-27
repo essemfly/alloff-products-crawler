@@ -11,8 +11,8 @@ import (
 	"strings"
 )
 
-func CacheProductImages(pd ColtortiProductInput) []string {
-	newImageUrls, err := cacheImages(pd.ProductID, pd.Images)
+func CacheProductImages(foldername string, pd ColtortiProductInput) []string {
+	newImageUrls, err := cacheImages(foldername, pd.ProductID, pd.Images)
 	if err != nil {
 		log.Println("cache image error", err)
 		return nil
@@ -21,7 +21,7 @@ func CacheProductImages(pd ColtortiProductInput) []string {
 	return newImageUrls
 }
 
-func cacheImages(pdInfoID string, images []string) ([]string, error) {
+func cacheImages(foldername, pdInfoID string, images []string) ([]string, error) {
 	newImageUrls := []string{}
 	for idx, imgURL := range images {
 		imgResp, err := http.Get(imgURL)
@@ -42,8 +42,8 @@ func cacheImages(pdInfoID string, images []string) ([]string, error) {
 		}
 
 		filename := pdInfoID + "-" + strconv.Itoa(idx)
-
-		file, err := os.Create("./coltorti/images/" + filename + "." + extension)
+		filepath := foldername + "/" + filename + "." + extension
+		file, err := os.Create(filepath)
 		if err != nil {
 			log.Fatal(err)
 		}

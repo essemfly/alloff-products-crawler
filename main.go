@@ -13,7 +13,8 @@ func main() {
 
 	log.Println("# of products: ", len(pds))
 
-	writeFilePath := "./outputs/outputTemplate.csv"
-	coltorti.WriteFile(writeFilePath, pds)
-
+	folders := coltorti.MakeFolders(len(pds))
+	for idx, folder := range folders {
+		coltorti.WriteFile(folder, pds[idx*100:(idx+1)*100])
+	}
 }
