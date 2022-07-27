@@ -27,13 +27,13 @@ const (
 	VATCriterion        = 150
 )
 
-func CalculatePrice(originalPrice float64, diescountRate int, currencyType string, productType string, FTA bool) int {
+func CalculatePrice(originalPrice float64, diescountRate int, currencyType string, isClothing, FTA bool) int {
 	ourPrice := originalPrice * float64(100-diescountRate) / 100.0
 	ourPrice = ourPrice * utils.EURO_EXCHANGE_RATE
 	ourPrice = ourPrice + ForeignDevlieryFee
 	taxPrice := 0.0
 	if !FTA && ourPrice < VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
-		if productType == "clothing" {
+		if isClothing {
 			taxPrice = ourPrice * ClothingTaxRate
 		} else {
 			taxPrice = ourPrice * NonClothingTaxRate
