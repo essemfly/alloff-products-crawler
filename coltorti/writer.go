@@ -22,7 +22,7 @@ func WriteFile(foldername string, pds []ColtortiProductInput) {
 
 	for _, pd := range pds {
 		filenames := CacheProductImages(foldername, pd)
-		pd.Images = filenames
+		pd.ImageFilenames = filenames
 		if err := w.Write(pd.ToProductTemplate()); err != nil {
 			log.Fatalln("error writing record to file", err)
 		}

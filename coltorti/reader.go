@@ -109,7 +109,10 @@ func ReadFile(filePath string) []ColtortiProductInput {
 			SizeOptions:   optionParser(row[21], row[22], row[23]),
 			FTA:           row[38] == "TRUE",
 		}
-		products = append(products, newProduct)
+
+		if ScreenBrands(newProduct.Brand) {
+			products = append(products, newProduct)
+		}
 	}
 
 	return products

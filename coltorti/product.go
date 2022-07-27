@@ -3,6 +3,8 @@ package coltorti
 import (
 	"strconv"
 	"strings"
+
+	"github.com/essemfly/alloff-products/utils"
 )
 
 type ProductOption struct {
@@ -12,24 +14,25 @@ type ProductOption struct {
 }
 
 type ColtortiProductInput struct {
-	ProductURL    string
-	Images        []string
-	Brand         string
-	ProductID     string
-	Season        string
-	Year          int
-	Color         string
-	MadeIn        string
-	Material      string
-	Name          string
-	Description   string
-	Category      string
-	Quantity      int
-	OriginalPrice float64
-	CurrencyType  string
-	DiscountRate  int
-	SizeOptions   []ProductOption
-	FTA           bool
+	ProductURL     string
+	Images         []string
+	ImageFilenames []string
+	Brand          string
+	ProductID      string
+	Season         string
+	Year           int
+	Color          string
+	MadeIn         string
+	Material       string
+	Name           string
+	Description    string
+	Category       string
+	Quantity       int
+	OriginalPrice  float64
+	CurrencyType   string
+	DiscountRate   int
+	SizeOptions    []ProductOption
+	FTA            bool
 }
 
 func (pd *ColtortiProductInput) ToProductTemplate() []string {
@@ -40,7 +43,12 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		optionQuantityStrings = append(optionQuantityStrings, strconv.Itoa(optionName.Quantity))
 	}
 
-	nameTranslated := pd.Name
+	names := []string{
+		GetKoreanBrandName(pd.Brand),
+		utils.StringTruncater(pd.Name, 25),
+		pd.ProductID,
+	}
+	nameTranslated := strings.Join(names, " ")
 	// nameTranslated, err := utils.TranslateText(language.Korean.String(), pd.Name)
 	// if err != nil {
 	// 	log.Println("info translate key err", err)
@@ -52,17 +60,20 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 
 	ourPrice := strconv.Itoa(CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType, IsClothing(*pd), pd.FTA))
 
+	descImages := pd.Images
+	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/alloff-products-detail.jpeg")
+
 	return []string{
 		"신상품",
-		"50000805",
+		GetNaverCategoryCode(pd.Category),
 		nameTranslated,
 		ourPrice,
 		strconv.Itoa(pd.Quantity),
 		"-",
 		"010-4118-1406",
-		pd.Images[0],
-		strings.Join(pd.Images, ","),
-		"alloff-products-detail.jpeg",
+		pd.ImageFilenames[0],
+		strings.Join(pd.ImageFilenames, ","),
+		strings.Join(descImages, ","),
 		"",
 		"",
 		"",

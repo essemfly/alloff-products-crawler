@@ -8,7 +8,7 @@ import (
 
 func main() {
 	log.Println("Running read csvs")
-	filePath := "./coltorti/csvs/allProducts.csv"
+	filePath := "./coltorti/csvs/allProducts_220728_0100.csv"
 	pds := coltorti.ReadFile(filePath)
 
 	log.Println("# of products: ", len(pds))
