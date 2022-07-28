@@ -2,11 +2,8 @@ package coltorti
 
 import (
 	"errors"
-	"io"
 	"log"
-	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -24,16 +21,16 @@ func CacheProductImages(foldername string, pd ColtortiProductInput) []string {
 func cacheImages(foldername, pdInfoID string, images []string) ([]string, error) {
 	newImageUrls := []string{}
 	for idx, imgURL := range images {
-		imgResp, err := http.Get(imgURL)
-		if err != nil {
-			log.Println("failed to get image from url: "+imgURL, err)
-			return nil, err
-		}
-		defer imgResp.Body.Close()
+		// imgResp, err := http.Get(imgURL)
+		// if err != nil {
+		// 	log.Println("failed to get image from url: "+imgURL, err)
+		// 	return nil, err
+		// }
+		// defer imgResp.Body.Close()
 
-		if imgResp.StatusCode != 200 {
-			return nil, errors.New("status code: " + strconv.Itoa(imgResp.StatusCode))
-		}
+		// if imgResp.StatusCode != 200 {
+		// 	return nil, errors.New("status code: " + strconv.Itoa(imgResp.StatusCode))
+		// }
 
 		extension, err := getFileExtensionFromUrl(imgURL)
 		if err != nil {
@@ -42,18 +39,18 @@ func cacheImages(foldername, pdInfoID string, images []string) ([]string, error)
 		}
 
 		filename := pdInfoID + "-" + strconv.Itoa(idx)
-		filepath := foldername + "/" + filename + "." + extension
-		file, err := os.Create(filepath)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
+		// filepath := foldername + "/" + filename + "." + extension
+		// file, err := os.Create(filepath)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// defer file.Close()
 
-		// Use io.Copy to just dump the response body to the file. This supports huge files
-		_, err = io.Copy(file, imgResp.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
+		// // Use io.Copy to just dump the response body to the file. This supports huge files
+		// _, err = io.Copy(file, imgResp.Body)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
 		newImageUrls = append(newImageUrls, filename+"."+extension)
 	}

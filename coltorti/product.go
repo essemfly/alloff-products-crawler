@@ -58,7 +58,11 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 	// 	log.Println("info translate key err", err)
 	// }
 
-	ourPrice := strconv.Itoa(CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType, IsClothing(*pd), pd.FTA))
+	originalPrice := CalculatePrice(pd.OriginalPrice, 0, pd.CurrencyType, IsClothing(*pd), pd.FTA)
+	ourPrice := CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType, IsClothing(*pd), pd.FTA)
+	discountPrice := originalPrice - ourPrice
+	originalPriceStr := strconv.Itoa(originalPrice)
+	discountPriceStr := strconv.Itoa(discountPrice)
 
 	descImages := pd.Images
 	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/alloff-products-detail.jpeg")
@@ -67,7 +71,7 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		"신상품",
 		GetNaverCategoryCode(pd.Category),
 		nameTranslated,
-		ourPrice,
+		originalPriceStr,
 		strconv.Itoa(pd.Quantity),
 		"-",
 		"010-4118-1406",
@@ -98,7 +102,7 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		"",
 		"",
 		"",
-		"0",
+		discountPriceStr,
 		"원",
 		"",
 		"개",
@@ -116,7 +120,7 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		"단독형",
 		"사이즈",
 		strings.Join(optionStrings, ","),
-		ourPrice,
+		"",
 		strings.Join(optionQuantityStrings, ","),
 		"",
 		"",
