@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/essemfly/alloff-products/utils"
 )
@@ -55,9 +56,12 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 	}
 	seasonBrief = seasonBrief + "/" + strconv.Itoa(pd.Year%100)
 
+	mustNameStr := GetKoreanBrandName(pd.Brand) + seasonBrief + productIDCutted
+	nameCutLength := 47 - utf8.RuneCountInString(mustNameStr)
+
 	names := []string{
 		GetKoreanBrandName(pd.Brand),
-		utils.StringTruncater(brandCuttedName, 20),
+		utils.StringTruncater(brandCuttedName, nameCutLength),
 		seasonBrief,
 		productIDCutted,
 	}
