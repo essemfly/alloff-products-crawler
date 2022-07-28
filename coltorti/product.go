@@ -97,8 +97,8 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		"선결제",
 		"",
 		"",
-		"80000",
-		"80000", //교환배송비
+		"40000",
+		"40000", //교환배송비
 		"",
 		"",
 		"",

@@ -1,6 +1,8 @@
 package coltorti
 
-import "github.com/essemfly/alloff-products/utils"
+import (
+	"github.com/essemfly/alloff-products/utils"
+)
 
 /*
 의류 FTA 불가능
@@ -27,8 +29,8 @@ const (
 	VATCriterion        = 150
 )
 
-func CalculatePrice(originalPrice float64, diescountRate int, currencyType string, isClothing, FTA bool) int {
-	ourPrice := originalPrice * float64(100-diescountRate) / 100.0
+func CalculatePrice(originalPrice float64, discountRate int, currencyType string, isClothing, FTA bool) int {
+	ourPrice := originalPrice * float64(100-discountRate) / 100.0
 	ourPrice = ourPrice * utils.EURO_EXCHANGE_RATE
 	ourPrice = ourPrice + ForeignDevlieryFee
 	taxPrice := 0.0

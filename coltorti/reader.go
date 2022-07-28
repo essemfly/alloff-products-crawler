@@ -88,7 +88,8 @@ func ReadFile(filePath string) []ColtortiProductInput {
 
 		yearInString, _ := strconv.Atoi(row[8])
 		quantityInString, _ := strconv.Atoi(row[18])
-		discountrateInString, _ := strconv.Atoi(row[20])
+		discountrateRawString := strings.Split(row[20], ".")[0]
+		discountrateInString, _ := strconv.Atoi(discountrateRawString)
 		newProduct := ColtortiProductInput{
 			ProductURL:    row[0],
 			Images:        images,
