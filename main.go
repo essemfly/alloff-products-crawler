@@ -15,6 +15,10 @@ func main() {
 
 	folders := coltorti.MakeFolders(len(pds))
 	for idx, folder := range folders {
-		coltorti.WriteFile(folder, pds[idx*100:(idx+1)*100])
+		lastIndex := (idx + 1) * 100
+		if lastIndex > len(pds) {
+			lastIndex = len(pds)
+		}
+		coltorti.WriteFile(folder, pds[idx*100:lastIndex])
 	}
 }

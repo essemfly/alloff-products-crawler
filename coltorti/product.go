@@ -1,6 +1,7 @@
 package coltorti
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -39,24 +40,28 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 	optionStrings := []string{}
 	optionQuantityStrings := []string{}
 	for _, optionName := range pd.SizeOptions {
-		optionStrings = append(optionStrings, optionName.SizeInfo+optionName.SizeName)
+		optionStrings = append(optionStrings, optionName.SizeInfo+"-"+optionName.SizeName)
 		optionQuantityStrings = append(optionQuantityStrings, strconv.Itoa(optionName.Quantity))
 	}
 
+	upperedName := strings.ToUpper(pd.Name)
+	brandCuttedName := strings.TrimLeft(upperedName, pd.Brand)
+	productIDCutted := strings.Split(pd.ProductID, "-")[0]
+	seasonBrief := ""
+	if pd.Season == "Spring - Summer" {
+		seasonBrief = "SS"
+	} else if pd.Season == "Fall - winter" {
+		seasonBrief = "FW"
+	}
+	seasonBrief = seasonBrief + "/" + strconv.Itoa(pd.Year%100)
+
 	names := []string{
 		GetKoreanBrandName(pd.Brand),
-		utils.StringTruncater(pd.Name, 25),
-		pd.ProductID,
+		utils.StringTruncater(brandCuttedName, 20),
+		seasonBrief,
+		productIDCutted,
 	}
 	nameTranslated := strings.Join(names, " ")
-	// nameTranslated, err := utils.TranslateText(language.Korean.String(), pd.Name)
-	// if err != nil {
-	// 	log.Println("info translate key err", err)
-	// }
-	// descTranslated, err := utils.TranslateText(language.Korean.String(), pd.Description)
-	// if err != nil {
-	// 	log.Println("info translate key err", err)
-	// }
 
 	originalPrice := CalculatePrice(pd.OriginalPrice, 0, pd.CurrencyType, IsClothing(*pd), pd.FTA)
 	ourPrice := CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType, IsClothing(*pd), pd.FTA)
@@ -66,6 +71,10 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 
 	descImages := pd.Images
 	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/alloff-products-detail.jpeg")
+	descImageHtml := fmt.Sprintf("<p>시즌: %s</p><p>색상: %s </p><p>소재: %s </p><p>제조국: %s </p>", pd.Season+" "+strconv.Itoa(pd.Year), pd.Color, pd.Material, pd.MadeIn)
+	for _, descImageUrl := range descImages {
+		descImageHtml = descImageHtml + "<img src='" + descImageUrl + "'>"
+	}
 
 	return []string{
 		"신상품",
@@ -77,7 +86,7 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		"010-4118-1406",
 		pd.ImageFilenames[0],
 		strings.Join(pd.ImageFilenames, ","),
-		strings.Join(descImages, ","),
+		descImageHtml,
 		"",
 		"",
 		"",
@@ -105,16 +114,16 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		discountPriceStr,
 		"원",
 		"",
-		"개",
 		"",
-		"원",
 		"",
-		"원",
-		"0",
-		"0",
-		"0",
-		"0",
-		"0",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 		"6", // 무이자 할부개월
 		"",  // 사은품
 		"단독형",
@@ -131,6 +140,15 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 		"",
 		pd.Brand,
 		"N",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
+		"",
 	}
 
 }
