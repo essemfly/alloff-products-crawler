@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func WriteFile(foldername string, pds []ColtortiProductInput) {
+func WriteFile(worker chan bool, done chan bool, foldername string, pds []ColtortiProductInput) {
 	filepath := foldername + "/" + "output.csv"
 	// f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	f, err := os.Create(filepath)
@@ -27,6 +27,9 @@ func WriteFile(foldername string, pds []ColtortiProductInput) {
 			log.Fatalln("error writing record to file", err)
 		}
 	}
+
+	<-worker
+	done <- true
 }
 
 func MakeFolders(numPds int) []string {

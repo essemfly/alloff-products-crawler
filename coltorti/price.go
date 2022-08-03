@@ -18,12 +18,32 @@ import (
 (원가-13%)+20000 해외 배송비 + 원가가 $150이상일 경우 10% 부가세 + 10% 마진 +3000 = 최종가격
 */
 
+// -의류/신발- FTX 불가능
+// 상품가격 -13% +23000(배송비)= a
+// a+(관세 a=<$150=13%) + (부가세 a=<$150= 10%)= b
+// b+5%마진= c
+
+// -의류/신발- FTX 가능
+// 상품가격 -13% +23000(배송비)= a
+// a + (부가세 a=<$150=10%)= b
+// b+5%마진= c
+
+// -잡화- FTX 불가능
+// 상품가격 -13% +23000(배송비)= a
+// a+(관세 a=<$150=8%) + (부가세 a=<$150=10%)=b
+// b+5%마진= c
+
+// -잡화- FTX 가능
+// 상품가격 -13% +23000(배송비)= a
+// a+=(부가세 a=<$150=10%)= b
+// b+5%마진= c
+
 const (
 	AlloffDiscount      = 0.13
-	ForeignDevlieryFee  = 20000
+	ForeignDevlieryFee  = 23000
 	DomesticDeliveryFee = 3000
 	VAT                 = 0.1
-	Margin              = 0.1
+	Margin              = 0.05
 	ClothingTaxRate     = 0.13
 	NonClothingTaxRate  = 0.08
 	VATCriterion        = 150
@@ -34,6 +54,7 @@ func CalculatePrice(originalPrice float64, discountRate int, currencyType string
 	ourPrice = ourPrice * utils.EURO_EXCHANGE_RATE
 	ourPrice = ourPrice + ForeignDevlieryFee
 	taxPrice := 0.0
+
 	if !FTA && ourPrice < VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
 		if isClothing {
 			taxPrice = ourPrice * ClothingTaxRate
@@ -52,5 +73,14 @@ func CalculatePrice(originalPrice float64, discountRate int, currencyType string
 	intPrice := int(totalPrice)
 	intPrice = intPrice / 1000
 	intPrice = intPrice * 1000
+	return intPrice
+}
+
+func CalculateOriginalPrice(ourPrice int, discountRate int) int {
+	newOriginalPrice := float64(ourPrice) * 10000.0 / (float64(100-discountRate) * float64(1-AlloffDiscount) * 100)
+	intPrice := int(newOriginalPrice)
+	intPrice = intPrice / 1000
+	intPrice = intPrice * 1000
+
 	return intPrice
 }

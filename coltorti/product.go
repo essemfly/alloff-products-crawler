@@ -16,25 +16,26 @@ type ProductOption struct {
 }
 
 type ColtortiProductInput struct {
-	ProductURL     string
-	Images         []string
-	ImageFilenames []string
-	Brand          string
-	ProductID      string
-	Season         string
-	Year           int
-	Color          string
-	MadeIn         string
-	Material       string
-	Name           string
-	Description    string
-	Category       string
-	Quantity       int
-	OriginalPrice  float64
-	CurrencyType   string
-	DiscountRate   int
-	SizeOptions    []ProductOption
-	FTA            bool
+	ProductURL        string
+	Images            []string
+	ImageFilenames    []string
+	Brand             string
+	ProductID         string
+	ProductStyleisNow string
+	Season            string
+	Year              int
+	Color             string
+	MadeIn            string
+	Material          string
+	Name              string
+	Description       string
+	Category          string
+	Quantity          int
+	OriginalPrice     float64
+	CurrencyType      string
+	DiscountRate      int
+	SizeOptions       []ProductOption
+	FTA               bool
 }
 
 func (pd *ColtortiProductInput) ToProductTemplate() []string {
@@ -67,8 +68,8 @@ func (pd *ColtortiProductInput) ToProductTemplate() []string {
 	}
 	nameTranslated := strings.Join(names, " ")
 
-	originalPrice := CalculatePrice(pd.OriginalPrice, 0, pd.CurrencyType, IsClothing(*pd), pd.FTA)
 	ourPrice := CalculatePrice(pd.OriginalPrice, pd.DiscountRate, pd.CurrencyType, IsClothing(*pd), pd.FTA)
+	originalPrice := CalculateOriginalPrice(ourPrice, pd.DiscountRate)
 	discountPrice := originalPrice - ourPrice
 	originalPriceStr := strconv.Itoa(originalPrice)
 	discountPriceStr := strconv.Itoa(discountPrice)
