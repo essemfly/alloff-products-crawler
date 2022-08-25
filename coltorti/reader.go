@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/essemfly/alloff-products/domain"
 )
 
 // Product Url
@@ -53,7 +55,7 @@ import (
 // Descrizione ITA
 // Star
 
-func ReadFile(filePath string) []ColtortiProductInput {
+func ReadFile(filePath string) []*domain.Product {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Panicln("file not found", err)
@@ -71,7 +73,7 @@ func ReadFile(filePath string) []ColtortiProductInput {
 		log.Panicln("err on read all", err)
 	}
 
-	products := []ColtortiProductInput{}
+	products := []*domain.Product{}
 
 	// 행,열 읽기
 	for i, row := range rows {
@@ -90,7 +92,7 @@ func ReadFile(filePath string) []ColtortiProductInput {
 		quantityInString, _ := strconv.Atoi(row[18])
 		discountrateRawString := strings.Split(row[20], ".")[0]
 		discountrateInString, _ := strconv.Atoi(discountrateRawString)
-		newProduct := ColtortiProductInput{
+		newProduct := domain.Product{
 			ProductURL:        row[0],
 			Images:            images,
 			Brand:             row[5],
@@ -109,11 +111,14 @@ func ReadFile(filePath string) []ColtortiProductInput {
 			CurrencyType:      "EUR",
 			DiscountRate:      discountrateInString,
 			SizeOptions:       optionParser(row[21], row[22], row[23]),
-			FTA:               row[38] == "TRUE",
+			FTA:               row[38] == "true",
 		}
 
 		if ScreenBrands(newProduct.Brand) {
-			products = append(products, newProduct)
+			if newProduct.FTA {
+				log.Println("FTA Product")
+			}
+			products = append(products, &newProduct)
 		}
 	}
 
@@ -129,8 +134,8 @@ func priceParser(priceInCsv string) float64 {
 	return 0.0
 }
 
-func optionParser(sizeInfo, Size, Qty string) []ProductOption {
-	options := []ProductOption{}
+func optionParser(sizeInfo, Size, Qty string) []domain.ProductOption {
+	options := []domain.ProductOption{}
 
 	optionSizes := strings.Split(Size, ",")
 	optionQuantities := strings.Split(Qty, ",")
@@ -141,7 +146,7 @@ func optionParser(sizeInfo, Size, Qty string) []ProductOption {
 			log.Panicln("option quantity parsing error", err)
 		}
 		if optionQuantityInt > 0 {
-			options = append(options, ProductOption{
+			options = append(options, domain.ProductOption{
 				SizeInfo: sizeInfo,
 				SizeName: option,
 				Quantity: optionQuantityInt,
