@@ -1,20 +1,20 @@
-package domain
+package coltorti
 
 import (
 	"log"
 	"strings"
 )
 
-func IsClothing(pd *Product) bool {
-	return strings.Contains(pd.Category, "Clothing")
+func IsClothing(category string) bool {
+	return strings.Contains(category, "Clothing")
 }
 
-func IsFemale(pd *Product) bool {
-	return !strings.Contains(pd.Category, "Men")
+func IsFemale(category string) bool {
+	return !strings.Contains(category, "Men")
 }
 
-func Classifier(pd *Product) string {
-	subCats := strings.Split(pd.Category, ">")
+func Classifier(category string) string {
+	subCats := strings.Split(category, ">")
 	lastCat := subCats[len(subCats)-1]
 	return lastCat
 }
@@ -211,7 +211,7 @@ func GetNaverCategoryCode(category string) string {
 		return val
 	}
 
-	log.Println("no classified cats", category)
+	log.Println("no classified cats for coltorti", category)
 	return "50000846"
 }
 

@@ -71,21 +71,15 @@ func CrawlIntrend(source string) []*domain.Product {
 			originalPrice = float64(genOriginalPrice(float32(discountedPrice)))
 		}
 
-		productID := e.Attr("data-product-id")
 		productUrl := "https://it.intrend.it" + e.ChildAttr(".js-anchor", "href")
 
-		title, composition, productColor, images, sizes, colors, inventories, description := getIntrendDetail(productUrl)
+		title, composition, productColor, productID, images, sizes, categories, inventories, description := getIntrendDetail(productUrl)
 		if len(sizes) == 0 {
 			inventories = append(inventories, &domain.ProductOption{
 				SizeInfo: "",
 				SizeName: "",
 				Quantity: 1,
 			})
-		}
-
-		infos := map[string]string{
-			"소재": composition,
-			"색상": productColor,
 		}
 
 		// forbidden 403 case
@@ -95,28 +89,31 @@ func CrawlIntrend(source string) []*domain.Product {
 			return
 		}
 
+		// Title & Description Translate
 		addRequest := &domain.Product{
+			Source:            domain.Source{Code: "INTREND"},
 			ProductURL:        productUrl,
 			Images:            images,
 			Brand:             "막스마라 인트렌드",
 			ProductID:         productID,
 			ProductStyleisNow: productID,
-			Season:            "",
-			Year:              0,
 			Color:             productColor,
-			MadeIn:            "",
-			Material:          "",
-			Name:              "",
-			Description:       "",
-			Category:          "",
-			Quantity:          0,
+			MadeIn:            "Italy",
+			Name:              title,
+			Description:       description["설명"],
+			Quantity:          2,
 			OriginalPrice:     originalPrice,
+			Material:          composition,
 			CurrencyType:      "EUR",
-			DiscountRate:      0,
+			DiscountRate:      int(PercentageChange(int(originalPrice), int(discountedPrice))),
+			Season:            "",
+			Category:          categories[0],
+			Year:              0,
 			SizeOptions:       []domain.ProductOption{},
 			FTA:               false,
 		}
 
+		log.Println("Add Request - Category", addRequest.Category)
 		products = append(products, addRequest)
 	})
 
@@ -147,7 +144,7 @@ type IntrendStock struct {
 	STOCKQTY int    `json:"STOCKQTY"`
 }
 
-func getIntrendDetail(productUrl string) (title, composition, productColor string, imageUrls []string, sizes, colors []string, inventories []*domain.ProductOption, description map[string]string) {
+func getIntrendDetail(productUrl string) (title, composition, productColor, productID string, imageUrls []string, sizes, categories []string, inventories []*domain.ProductOption, description map[string]string) {
 	c := colly.NewCollector(
 		colly.AllowedDomains("it.intrend.it"),
 		colly.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11"),
@@ -184,11 +181,16 @@ func getIntrendDetail(productUrl string) (title, composition, productColor strin
 		})
 	})
 
-	c.OnHTML(".swatches", func(e *colly.HTMLElement) {
-		e.ForEach(".swatch", func(_ int, el *colly.HTMLElement) {
-			color := el.ChildAttr("img", "title")
-			colors = append(colors, color)
+	c.OnHTML(".breadcrumb", func(e *colly.HTMLElement) {
+		e.ForEach(".cta-underlined", func(i int, h *colly.HTMLElement) {
+			if i == 1 {
+				categories = append(categories, h.Attr("href"))
+			}
 		})
+	})
+
+	c.OnHTML(".product-name-value", func(h *colly.HTMLElement) {
+		productID = h.Text
 	})
 
 	c.OnHTML(".swatches .title", func(e *colly.HTMLElement) {
@@ -207,13 +209,13 @@ func getIntrendDetail(productUrl string) (title, composition, productColor strin
 		composition = texts
 	})
 
-	c.OnHTML("#fitting .details-tab-content", func(e *colly.HTMLElement) {
-		texts := ""
-		e.ForEach("ul li", func(idx int, el *colly.HTMLElement) {
-			texts += el.Text
-		})
-		description["모델"] = texts
-	})
+	// c.OnHTML("#fitting .details-tab-content", func(e *colly.HTMLElement) {
+	// 	texts := ""
+	// 	e.ForEach("ul li", func(idx int, el *colly.HTMLElement) {
+	// 		texts += el.Text
+	// 	})
+	// 	description["모델"] = texts
+	// })
 
 	c.Visit(productUrl)
 	return
@@ -251,4 +253,10 @@ func genRandRate(min, max int) float32 {
 	rng := max - min + 1
 	randFloat := (float32(rand.Intn(rng)) + float32(min) + 100.00) / 100.00
 	return randFloat
+}
+
+func PercentageChange(old, new int) (delta float64) {
+	diff := float64(new - old)
+	delta = (diff / float64(old)) * 100
+	return
 }

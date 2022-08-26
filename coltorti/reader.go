@@ -11,50 +11,6 @@ import (
 	"github.com/essemfly/alloff-products/domain"
 )
 
-// Product Url
-// Image
-// Image1
-// Image2
-// Image3
-// Brand
-// Sku Styleisnow
-// Season
-// Year
-// Sku Supplier
-// Variant
-// Color detail
-// Color Supplier
-// Made in
-// Material
-// Name
-// Description
-// Categories
-// Qty
-// Retail Price
-// Discount
-// Size Info
-// Size
-// Qty Detail
-// Bag length
-// Bag height
-// Bag weight
-// Handle height
-// Shoulder bag length
-// Belt length
-// Belt height
-// Accessory length
-// Accessory height
-// Accessory weight
-// Heel height
-// Plateau height
-// Insole length
-// Color Styleisnow ITA
-// FTA
-// EAN
-// Nome ITA
-// Descrizione ITA
-// Star
-
 func ReadFile(filePath string) []*domain.Product {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -93,6 +49,7 @@ func ReadFile(filePath string) []*domain.Product {
 		discountrateRawString := strings.Split(row[20], ".")[0]
 		discountrateInString, _ := strconv.Atoi(discountrateRawString)
 		newProduct := domain.Product{
+			Source:            domain.Source{Code: "COLTORTI"},
 			ProductURL:        row[0],
 			Images:            images,
 			Brand:             row[5],
@@ -114,12 +71,7 @@ func ReadFile(filePath string) []*domain.Product {
 			FTA:               row[38] == "true",
 		}
 
-		if ScreenBrands(newProduct.Brand) {
-			if newProduct.FTA {
-				log.Println("FTA Product")
-			}
-			products = append(products, &newProduct)
-		}
+		products = append(products, &newProduct)
 	}
 
 	return products

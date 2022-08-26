@@ -1,4 +1,4 @@
-package domain
+package worker
 
 import (
 	"encoding/csv"
@@ -6,9 +6,13 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/essemfly/alloff-products/coltorti"
+	"github.com/essemfly/alloff-products/domain"
+	"github.com/essemfly/alloff-products/intrend"
 )
 
-func WriteFile(worker chan bool, done chan bool, foldername string, pds []*Product) {
+func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domain.Product) {
 	filepath := foldername + "/" + "output.csv"
 	// f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	f, err := os.Create(filepath)
@@ -23,13 +27,23 @@ func WriteFile(worker chan bool, done chan bool, foldername string, pds []*Produ
 	for _, pd := range pds {
 		filenames := CacheProductImages(foldername, pd)
 		pd.ImageFilenames = filenames
-		if err := w.Write(pd.ToProductTemplate()); err != nil {
+		template := GetProductTemplate(pd)
+		if err := w.Write(template); err != nil {
 			log.Fatalln("error writing record to file", err)
 		}
 	}
 
 	<-worker
 	done <- true
+}
+
+func GetProductTemplate(pd *domain.Product) []string {
+	if pd.Source.Code == "INTREND" {
+		return intrend.GetIntrendTemplate(pd)
+	} else if pd.Source.Code == "COLTORTI" {
+		return coltorti.GetColtortiTemplate(pd)
+	}
+	return []string{}
 }
 
 func MakeFolders(numPds int) []string {

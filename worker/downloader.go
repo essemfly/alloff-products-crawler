@@ -1,4 +1,4 @@
-package domain
+package worker
 
 import (
 	"errors"
@@ -9,9 +9,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/essemfly/alloff-products/domain"
 )
 
-func CacheProductImages(foldername string, pd *Product) []string {
+func CacheProductImages(foldername string, pd *domain.Product) []string {
 	newImageUrls, err := cacheImages(foldername, pd.ProductStyleisNow, pd.Images)
 	if err != nil {
 		log.Println("cache image error", err)

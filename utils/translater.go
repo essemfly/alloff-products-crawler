@@ -6,6 +6,7 @@ import (
 
 	"cloud.google.com/go/translate"
 	"golang.org/x/text/language"
+	"google.golang.org/api/option"
 )
 
 func TranslateText(targetLanguage, text string) (string, error) {
@@ -17,7 +18,7 @@ func TranslateText(targetLanguage, text string) (string, error) {
 		return "", fmt.Errorf("language.Parse: %v", err)
 	}
 
-	client, err := translate.NewClient(ctx)
+	client, err := translate.NewClient(ctx, option.WithCredentialsFile("/Users/Seokmin/alloff-products-d816a3333278.json"))
 	if err != nil {
 		return "", err
 	}
