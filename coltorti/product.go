@@ -47,7 +47,9 @@ func GetColtortiTemplate(pd *domain.Product) []string {
 	discountPriceStr := strconv.Itoa(discountPrice)
 
 	descImages := pd.Images
-	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/alloff-products-detail.jpeg")
+	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/detail_220820_1.jpeg")
+	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/detail_220820_2.jpeg")
+	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/detail_220820_3.jpeg")
 	descImageHtml := fmt.Sprintf("<p>시즌: %s</p><p>색상: %s </p><p>소재: %s </p><p>제조국: %s </p>", pd.Season+" "+strconv.Itoa(pd.Year), pd.Color, pd.Material, pd.MadeIn)
 	for _, descImageUrl := range descImages {
 		descImageHtml = descImageHtml + "<img src='" + descImageUrl + "'>"

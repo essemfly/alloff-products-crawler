@@ -74,12 +74,21 @@ func CrawlIntrend(source string) []*domain.Product {
 		productUrl := "https://it.intrend.it" + e.ChildAttr(".js-anchor", "href")
 
 		title, composition, productColor, productID, images, sizes, categories, inventories, description := getIntrendDetail(productUrl)
+		options := []domain.ProductOption{}
 		if len(sizes) == 0 {
-			inventories = append(inventories, &domain.ProductOption{
-				SizeInfo: "",
-				SizeName: "",
+			options = append(options, domain.ProductOption{
+				SizeInfo: "FREE",
+				SizeName: "FREE",
 				Quantity: 1,
 			})
+		} else {
+			for _, inv := range inventories {
+				options = append(options, domain.ProductOption{
+					SizeInfo: inv.SizeInfo,
+					SizeName: inv.SizeName,
+					Quantity: inv.Quantity,
+				})
+			}
 		}
 
 		// forbidden 403 case
@@ -109,7 +118,7 @@ func CrawlIntrend(source string) []*domain.Product {
 			Season:            "",
 			Category:          categories[0],
 			Year:              0,
-			SizeOptions:       []domain.ProductOption{},
+			SizeOptions:       options,
 			FTA:               false,
 		}
 

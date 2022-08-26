@@ -18,7 +18,7 @@ func TranslateText(targetLanguage, text string) (string, error) {
 		return "", fmt.Errorf("language.Parse: %v", err)
 	}
 
-	client, err := translate.NewClient(ctx, option.WithCredentialsFile("/Users/Seokmin/alloff-products-d816a3333278.json"))
+	client, err := translate.NewClient(ctx, option.WithCredentialsFile("/Users/seokmin/alloff-products-e68b27dac2ac.json"))
 	if err != nil {
 		return "", err
 	}
