@@ -3,6 +3,7 @@ package domain
 type Source struct {
 	Code          string
 	ExcelFilename string
+	TextFilename  string
 	Tabs          []string
 	Brands        []string
 }

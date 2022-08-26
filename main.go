@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 
 	"github.com/essemfly/alloff-products/coltorti"
@@ -19,8 +21,6 @@ func main() {
 }
 
 func SelectSources() []*domain.Source {
-	excelFilename := ""
-	coltortiBrands := []string{}
 	intrendTabs := []string{
 		"https://it.intrend.it/special-price/abbigliamento-special",      // 티셔츠느낌
 		"https://it.intrend.it/special-price/cappotti-e-giacche-special", // 코트느낌
@@ -31,7 +31,6 @@ func SelectSources() []*domain.Source {
 
 	return []*domain.Source{
 		{Code: "INTREND", Tabs: intrendTabs},
-		{Code: "COLTORTI", Brands: coltortiBrands, ExcelFilename: excelFilename},
 	}
 }
 
@@ -45,10 +44,19 @@ func LoadProducts(sources []*domain.Source) []*domain.Product {
 
 func CrawlSource(source *domain.Source) []*domain.Product {
 	if source.Code == "INTREND" {
-		pds := []*domain.Product{}
-		for _, url := range source.Tabs {
-			intrend.CrawlIntrend(url)
+		if source.TextFilename == "intrend.json" {
+			return intrend.ReadFromFile(source.TextFilename)
 		}
+
+		pds := []*domain.Product{}
+		for idx, url := range source.Tabs {
+			log.Println("Intrend tab: ", idx, url)
+			pds = append(pds, intrend.CrawlIntrend(url)...)
+		}
+
+		file, _ := json.MarshalIndent(pds, "", " ")
+		_ = ioutil.WriteFile("intrend.json", file, 0644)
+
 		return pds
 	} else if source.Code == "COLTORTI" {
 		if source.ExcelFilename != "" {

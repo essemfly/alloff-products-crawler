@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/essemfly/alloff-products/coltorti"
 	"github.com/essemfly/alloff-products/domain"
 	"github.com/essemfly/alloff-products/utils"
 	"golang.org/x/text/language"
@@ -28,6 +27,10 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 	if err != nil {
 		log.Println("err occured on translating text")
 	}
+	translatedMaterial, err := utils.TranslateText(language.Korean.String(), pd.Material)
+	if err != nil {
+		log.Println("err occured on translating text")
+	}
 
 	names := []string{
 		pd.Brand,
@@ -44,14 +47,14 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 
 	descImages := pd.Images
 	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/alloff-products-detail.jpeg")
-	descImageHtml := fmt.Sprintf("<p>색상: %s </p><p>소재: %s </p><p>제조국: %s </p><p>상품 설명: %s</p>", pd.Color, pd.Material, pd.MadeIn, translatedDescription)
+	descImageHtml := fmt.Sprintf("<p>색상: %s </p><p>소재: %s </p><p>상품 설명: %s</p>", pd.Color, translatedMaterial, translatedDescription)
 	for _, descImageUrl := range descImages {
 		descImageHtml = descImageHtml + "<img src='" + descImageUrl + "'>"
 	}
 
 	return []string{
 		"신상품",
-		coltorti.GetNaverCategoryCode(pd.Category),
+		GetNaverCategoryCode(pd.Category),
 		nameTranslated,
 		originalPriceStr,
 		strconv.Itoa(pd.Quantity),

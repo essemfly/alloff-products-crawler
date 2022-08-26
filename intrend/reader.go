@@ -1,7 +1,9 @@
 package intrend
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/rand"
 	"regexp"
@@ -28,6 +30,19 @@ func GetSources() []string {
 		"https://it.intrend.it/special-price/borse-e-accessori-special",  // 악세서리
 		"https://it.intrend.it/special-price/scarpe-special",             // 가죽신발?
 	}
+}
+
+func ReadFromFile(filePath string) []*domain.Product {
+	file, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		log.Panicln("file not found", err)
+	}
+
+	var ret []*domain.Product
+	if err := json.Unmarshal(file, &ret); err != nil {
+		log.Panicln("file unmarshal failed", filePath)
+	}
+	return ret
 }
 
 func CrawlIntrend(source string) []*domain.Product {
@@ -71,6 +86,7 @@ func CrawlIntrend(source string) []*domain.Product {
 			originalPrice = float64(genOriginalPrice(float32(discountedPrice)))
 		}
 
+		productUniqueID := e.Attr("data-product-id")
 		productUrl := "https://it.intrend.it" + e.ChildAttr(".js-anchor", "href")
 
 		title, composition, productColor, productID, images, sizes, categories, inventories, description := getIntrendDetail(productUrl)
@@ -104,7 +120,7 @@ func CrawlIntrend(source string) []*domain.Product {
 			ProductURL:        productUrl,
 			Images:            images,
 			Brand:             "막스마라 인트렌드",
-			ProductID:         productID,
+			ProductID:         productUniqueID,
 			ProductStyleisNow: productID,
 			Color:             productColor,
 			MadeIn:            "Italy",
@@ -122,7 +138,6 @@ func CrawlIntrend(source string) []*domain.Product {
 			FTA:               false,
 		}
 
-		log.Println("Add Request - Category", addRequest.Category)
 		products = append(products, addRequest)
 	})
 
@@ -264,8 +279,8 @@ func genRandRate(min, max int) float32 {
 	return randFloat
 }
 
-func PercentageChange(old, new int) (delta float64) {
-	diff := float64(new - old)
-	delta = (diff / float64(old)) * 100
+func PercentageChange(original, discounted int) (delta float64) {
+	diff := float64(original - discounted)
+	delta = (diff / float64(original)) * 100
 	return
 }
