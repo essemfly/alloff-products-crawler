@@ -15,7 +15,7 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 	optionStrings := []string{}
 	optionQuantityStrings := []string{}
 	for _, optionName := range pd.SizeOptions {
-		optionStrings = append(optionStrings, optionName.SizeInfo+"-"+optionName.SizeName)
+		optionStrings = append(optionStrings, optionName.SizeName)
 		optionQuantityStrings = append(optionQuantityStrings, strconv.Itoa(optionName.Quantity))
 	}
 
@@ -46,10 +46,19 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 	discountPriceStr := strconv.Itoa(discountPrice)
 
 	descImages := pd.Images
-	descImages = append(descImages, "https://d3vx04mz0cr7rc.cloudfront.net/alloff-products-detail.jpeg")
-	descImageHtml := fmt.Sprintf("<p>색상: %s </p><p>소재: %s </p><p>상품 설명: %s</p>", pd.Color, translatedMaterial, translatedDescription)
+	descImageHtml := ""
 	for _, descImageUrl := range descImages {
 		descImageHtml = descImageHtml + "<img src='" + descImageUrl + "'>"
+	}
+	descImageHtml += fmt.Sprintf("<p></p><p>색상: %s </p><p>소재: %s </p><p>상품 설명: %s</p><p></p>", pd.Color, translatedMaterial, translatedDescription)
+
+	infoImages := []string{}
+	infoImages = append(infoImages, "https://d3vx04mz0cr7rc.cloudfront.net/detail_220820_1.jpeg")
+	infoImages = append(infoImages, "https://d3vx04mz0cr7rc.cloudfront.net/detail_220820_2.jpeg")
+	infoImages = append(infoImages, "https://d3vx04mz0cr7rc.cloudfront.net/detail_220820_3.jpeg")
+
+	for _, infoImgUrl := range infoImages {
+		descImageHtml = descImageHtml + "<img src='" + infoImgUrl + "'>"
 	}
 
 	return []string{

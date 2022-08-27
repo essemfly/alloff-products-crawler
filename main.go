@@ -12,13 +12,6 @@ import (
 )
 
 func main() {
-	// hoit, err := utils.TranslateText(language.Korean.String(), "My name is socks")
-	// log.Println("HOIT", hoit, err)
-	// sources := SelectSources()
-	// products := LoadProducts(sources)
-
-	// SpawnWorkers(products)
-
 	outputFileNames := intrend.LoadCsvFiles()
 	productInfosMap := intrend.GetCurrentTranslatedInfo(outputFileNames)
 

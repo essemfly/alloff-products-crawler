@@ -9,8 +9,10 @@ const (
 	ForeignDevlieryFeeInEuro  = 20
 	DomesticDeliveryFeeInEuro = 3
 	VAT                       = 0.1
-	MarginUnder80Euro         = 0.15
-	MarginOver80Euro          = 0.12
+	CommissionUnder80Euro     = 0.15
+	CommissionOver80Euro      = 0.12
+	MarginUnder80Euro         = 0.17
+	MarginOver80Euro          = 0.17
 	ClothingTaxRate           = 0.13
 	NonClothingTaxRate        = 0.08
 	VATCriterion              = 150
@@ -23,8 +25,8 @@ const (
 배송비 이태리- 한국 개별 주소지
 : 실비 정산  ( 대략 17 - 22 유로 건당 예상, 평균 20유로)
 
-80유로 이하 15% -> Margin
-80유로 초과 12% -> Margin
+80유로 이하 15% -> 구매수수료
+80유로 초과 12% -> 구매수수료
 건별 +3유로
 
 
@@ -52,8 +54,6 @@ const (
 4.c +(c의17%마진)= 최종가격
 
 -잡화-
-
-
 상품이 80유로 이상일 경우 (구매수수료 12%)
 1.상품가 + 해외 배송비 20유로(약 25,000)+상품가(상품가+해외 배송비)가 $150 넘을경우 8%(관세) = a
 2.(a+상품가가 $150이 넘을경우 ‘a’에대한 부가세10%)=b
@@ -68,14 +68,9 @@ func CalculatePrice(originalPrice float64, discountRate int, currencyType string
 	ourPrice = ourPrice * utils.EURO_EXCHANGE_RATE
 	taxPrice := 0.0
 
-	marginRate := MarginUnder80Euro
-	// 상품가가 80유로 이상 이하인 경우 체크
-	if originalPriceInEuro >= 80 {
-		marginRate = MarginOver80Euro
-	}
-
+	// 관세
 	// 총 상품액이 $150인경우 관세를 붙이는 여부 -> 관세는 13%, 8%
-	if ourPrice < VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
+	if ourPrice > VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
 		if isClothing {
 			taxPrice = ourPrice * ClothingTaxRate
 		} else {
@@ -83,12 +78,22 @@ func CalculatePrice(originalPrice float64, discountRate int, currencyType string
 		}
 	}
 
+	// 부가세
 	vatPrice := 0.0
-	if ourPrice < VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
+	if ourPrice > VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
 		vatPrice = (ourPrice + taxPrice) * VAT
 	}
 
-	totalPrice := ourPrice + taxPrice + vatPrice + DomesticDeliveryFeeInEuro*utils.EURO_EXCHANGE_RATE
+	// 구매수수료
+	marginRate := MarginUnder80Euro
+	commissionFee := originalPriceInEuro * CommissionUnder80Euro * utils.EURO_EXCHANGE_RATE
+	if originalPriceInEuro >= 80 {
+		marginRate = MarginOver80Euro
+		commissionFee = originalPriceInEuro * CommissionOver80Euro * utils.EURO_EXCHANGE_RATE
+	}
+
+	// 마진
+	totalPrice := ourPrice + taxPrice + vatPrice + commissionFee + DomesticDeliveryFeeInEuro*utils.EURO_EXCHANGE_RATE
 	totalPrice = totalPrice * (1 + marginRate)
 
 	intPrice := int(totalPrice)
