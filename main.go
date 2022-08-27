@@ -14,10 +14,17 @@ import (
 func main() {
 	// hoit, err := utils.TranslateText(language.Korean.String(), "My name is socks")
 	// log.Println("HOIT", hoit, err)
+	// sources := SelectSources()
+	// products := LoadProducts(sources)
+
+	// SpawnWorkers(products)
+
+	outputFileNames := intrend.LoadCsvFiles()
+	productInfosMap := intrend.GetCurrentTranslatedInfo(outputFileNames)
+
 	sources := SelectSources()
 	products := LoadProducts(sources)
-
-	SpawnWorkers(products)
+	SpawnWorkers(products, productInfosMap)
 }
 
 func SelectSources() []*domain.Source {
@@ -30,7 +37,7 @@ func SelectSources() []*domain.Source {
 	}
 
 	return []*domain.Source{
-		{Code: "INTREND", Tabs: intrendTabs},
+		{Code: "INTREND", Tabs: intrendTabs, TextFilename: "intrend.json"},
 	}
 }
 
@@ -66,8 +73,8 @@ func CrawlSource(source *domain.Source) []*domain.Product {
 	return nil
 }
 
-func SpawnWorkers(products []*domain.Product) {
-	const numWorkers = 12
+func SpawnWorkers(products []*domain.Product, prevProducts map[string][]string) {
+	const numWorkers = 21
 
 	folders := worker.MakeFolders(len(products))
 	workers := make(chan bool, numWorkers)
@@ -87,7 +94,7 @@ func SpawnWorkers(products []*domain.Product) {
 		workers <- true
 		<-done
 
-		go worker.WriteFile(workers, done, folder, products[idx*100:lastIndex])
+		go worker.WriteFile(workers, done, folder, products[idx*100:lastIndex], prevProducts)
 	}
 
 	for c := 0; c < numWorkers; c++ {

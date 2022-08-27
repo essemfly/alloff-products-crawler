@@ -100,7 +100,7 @@ func CrawlIntrend(source string) []*domain.Product {
 		} else {
 			for _, inv := range inventories {
 				options = append(options, domain.ProductOption{
-					SizeInfo: inv.SizeInfo,
+					SizeInfo: "IT",
 					SizeName: inv.SizeName,
 					Quantity: inv.Quantity,
 				})
@@ -120,8 +120,8 @@ func CrawlIntrend(source string) []*domain.Product {
 			ProductURL:        productUrl,
 			Images:            images,
 			Brand:             "막스마라 인트렌드",
-			ProductID:         productUniqueID,
-			ProductStyleisNow: productID,
+			ProductID:         productID,
+			ProductStyleisNow: productUniqueID,
 			Color:             productColor,
 			MadeIn:            "Italy",
 			Name:              title,

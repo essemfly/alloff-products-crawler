@@ -12,7 +12,7 @@ import (
 	"github.com/essemfly/alloff-products/intrend"
 )
 
-func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domain.Product) {
+func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domain.Product, prevProducts map[string][]string) {
 	filepath := foldername + "/" + "output.csv"
 	// f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	f, err := os.Create(filepath)
@@ -27,8 +27,13 @@ func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domai
 	for _, pd := range pds {
 		filenames := CacheProductImages(foldername, pd)
 		pd.ImageFilenames = filenames
-		template := GetProductTemplate(pd)
-		if err := w.Write(template); err != nil {
+		row := intrend.CheckAlreadyHaveProductRow(prevProducts, pd)
+
+		if row == nil {
+			row = GetProductTemplate(pd)
+		}
+
+		if err := w.Write(row); err != nil {
 			log.Fatalln("error writing record to file", err)
 		}
 	}

@@ -35,7 +35,7 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 	names := []string{
 		pd.Brand,
 		translatedTitle,
-		pd.ProductID,
+		pd.ProductStyleisNow,
 	}
 	nameTranslated := strings.Join(names, " ")
 
@@ -82,8 +82,8 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 		"선결제",
 		"",
 		"",
-		"40000",
-		"40000", //교환배송비
+		"30000",
+		"30000", //교환배송비
 		"",
 		"",
 		"",

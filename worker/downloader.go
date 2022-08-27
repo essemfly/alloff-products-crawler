@@ -14,7 +14,7 @@ import (
 )
 
 func CacheProductImages(foldername string, pd *domain.Product) []string {
-	newImageUrls, err := cacheImages(foldername, pd.ProductStyleisNow, pd.Images)
+	newImageUrls, err := cacheImages(foldername, pd.ProductID, pd.Images)
 	if err != nil {
 		log.Println("cache image error", err)
 		return nil
@@ -23,7 +23,7 @@ func CacheProductImages(foldername string, pd *domain.Product) []string {
 	return newImageUrls
 }
 
-func cacheImages(foldername, pdStyleIsNowID string, images []string) ([]string, error) {
+func cacheImages(foldername, ProductID string, images []string) ([]string, error) {
 	newImageUrls := []string{}
 	for idx, imgURL := range images {
 		extension, err := getFileExtensionFromUrl(imgURL)
@@ -31,7 +31,7 @@ func cacheImages(foldername, pdStyleIsNowID string, images []string) ([]string, 
 			log.Println("failed to get extension from url: "+imgURL, err)
 			return nil, err
 		}
-		filename := pdStyleIsNowID + "-" + strconv.Itoa(idx)
+		filename := ProductID + "-" + strconv.Itoa(idx)
 		filepath := foldername + "/" + filename + "." + extension
 
 		newImageUrls = append(newImageUrls, filename+"."+extension)
@@ -41,7 +41,7 @@ func cacheImages(foldername, pdStyleIsNowID string, images []string) ([]string, 
 			if err != nil {
 				log.Fatal(err)
 			}
-			return newImageUrls, nil
+			continue
 		}
 
 		imgResp, err := http.Get(imgURL)

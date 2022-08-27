@@ -34,6 +34,12 @@ func GetNaverCategoryCode(category string) string {
 		"/borse-e-accessori/cinture":              "50000539",
 		"/borse-e-accessori/occhiali":             "50000556",
 		"/scarpe/tutte":                           "50003840",
+		"/scarpe/décolleté":                       "50003827",
+		"/scarpe/sneakers":                        "50003822",
+		"/scarpe/ballerine-e-mocassini":           "50003820",
+		"/scarpe/sandali":                         "50003842",
+		"/scarpe/stivali-e-tronchetti":            "50004191",
+		"/scarpe/stringate":                       "50003842",
 	}
 
 	if val, ok := categoryMappers[category]; ok {
@@ -45,5 +51,5 @@ func GetNaverCategoryCode(category string) string {
 }
 
 func IsClothing(category string) bool {
-	return strings.Contains(category, "Clothing")
+	return !strings.Contains(category, "accessori")
 }
