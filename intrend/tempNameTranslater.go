@@ -3,11 +3,8 @@ package intrend
 import (
 	"bufio"
 	"encoding/csv"
-	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -21,34 +18,6 @@ func TranslateMapper(originalName string) string {
 
 	return translatedName
 
-}
-
-func LoadCsvFiles() []string {
-	csvFiles := []string{}
-	files, err := ioutil.ReadDir("./outputs")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, f := range files {
-		if f.IsDir() {
-			err := filepath.Walk("./outputs/"+f.Name(),
-				func(path string, info os.FileInfo, err error) error {
-					if err != nil {
-						return err
-					}
-					r, err := regexp.MatchString(".csv", path)
-					if err == nil && r {
-						csvFiles = append(csvFiles, path)
-					}
-					return nil
-				})
-			if err != nil {
-				log.Println(err)
-			}
-		}
-	}
-
-	return csvFiles
 }
 
 func GetCurrentTranslatedInfo(outputFileNames []string) map[string][]string {

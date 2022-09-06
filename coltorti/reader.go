@@ -11,7 +11,7 @@ import (
 	"github.com/essemfly/alloff-products/domain"
 )
 
-func ReadFile(filePath string) []*domain.Product {
+func ReadFile(filePath string, brands []string) []*domain.Product {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Panicln("file not found", err)
@@ -34,6 +34,10 @@ func ReadFile(filePath string) []*domain.Product {
 	// 행,열 읽기
 	for i, row := range rows {
 		if i == 0 {
+			continue
+		}
+
+		if !screenBrands(brands, row[5]) {
 			continue
 		}
 
@@ -75,6 +79,16 @@ func ReadFile(filePath string) []*domain.Product {
 	}
 
 	return products
+}
+
+func screenBrands(brands []string, brandName string) bool {
+	for _, brand := range brands {
+		if brandName == brand {
+			return true
+		}
+	}
+
+	return false
 }
 
 func priceParser(priceInCsv string) float64 {

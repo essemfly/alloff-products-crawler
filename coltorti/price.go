@@ -1,8 +1,6 @@
 package coltorti
 
 import (
-	"log"
-
 	"github.com/essemfly/alloff-products/utils"
 )
 
@@ -43,7 +41,7 @@ import (
 const (
 	AlloffDiscount      = 0.08
 	ForeignDevlieryFee  = 35000
-	DomesticDeliveryFee = 3000
+	DomesticDeliveryFee = 4000
 	VAT                 = 0.1
 	Margin              = 0.05
 	ClothingTaxRate     = 0.13
@@ -56,10 +54,6 @@ func CalculatePrice(originalPrice float64, discountRate int, currencyType string
 	ourPrice = ourPrice * utils.EURO_EXCHANGE_RATE
 	ourPrice = ourPrice + ForeignDevlieryFee
 	taxPrice := 0.0
-
-	if FTA {
-		log.Println("FTA True cases are here", FTA)
-	}
 
 	if !FTA && ourPrice < VATCriterion*utils.DOLLOR_EXCHANGE_RATE {
 		if isClothing {

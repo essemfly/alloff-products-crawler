@@ -2,8 +2,11 @@ package worker
 
 import (
 	"encoding/csv"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -11,6 +14,34 @@ import (
 	"github.com/essemfly/alloff-products/domain"
 	"github.com/essemfly/alloff-products/intrend"
 )
+
+func LoadCsvFiles() []string {
+	csvFiles := []string{}
+	files, err := ioutil.ReadDir("./outputs")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		if f.IsDir() {
+			err := filepath.Walk("./outputs/"+f.Name(),
+				func(path string, info os.FileInfo, err error) error {
+					if err != nil {
+						return err
+					}
+					r, err := regexp.MatchString(".csv", path)
+					if err == nil && r {
+						csvFiles = append(csvFiles, path)
+					}
+					return nil
+				})
+			if err != nil {
+				log.Println(err)
+			}
+		}
+	}
+
+	return csvFiles
+}
 
 func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domain.Product, prevProducts map[string][]string) {
 	filepath := foldername + "/" + "output.csv"
@@ -27,11 +58,13 @@ func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domai
 	for _, pd := range pds {
 		filenames := CacheProductImages(foldername, pd)
 		pd.ImageFilenames = filenames
-		row := intrend.CheckAlreadyHaveProductRow(prevProducts, pd)
 
-		if row == nil {
-			row = GetProductTemplate(pd)
-		}
+		row := GetProductTemplate(pd)
+		// for intrend
+		// row := intrend.CheckAlreadyHaveProductRow(prevProducts, pd)
+		// if row == nil {
+		// 	row = GetProductTemplate(pd)
+		// }
 
 		if err := w.Write(row); err != nil {
 			log.Fatalln("error writing record to file", err)
