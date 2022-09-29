@@ -58,7 +58,10 @@ func CrawlIntrend(source string) []*domain.Product {
 		originalPriceStr := e.ChildText(".full-price")
 		originalPrice := 0.0
 		if originalPriceStr != "" {
-			originalPriceStr = strings.Split(originalPriceStr, " ")[1]
+			origianlPriceSplit := strings.Split(originalPriceStr, " ")
+			if len(origianlPriceSplit) > 0 {
+				originalPriceStr = origianlPriceSplit[1]
+			}
 			originalPriceStr = strings.Replace(originalPriceStr, ".", "", -1)
 			originalPriceStr = strings.Replace(originalPriceStr, ",", ".", -1)
 			originalPrice, err := strconv.ParseFloat(originalPriceStr, 32)
@@ -70,7 +73,10 @@ func CrawlIntrend(source string) []*domain.Product {
 		}
 
 		discountedPriceStr := e.ChildText(".price")
-		discountedPriceStr = strings.Split(discountedPriceStr, " ")[1]
+		discountedSplit := strings.Split(discountedPriceStr, " ")
+		if len(discountedSplit) > 0 {
+			discountedPriceStr = discountedSplit[1]
+		}
 		discountedPriceStr = strings.Replace(discountedPriceStr, ".", "", -1)
 		discountedPriceStr = strings.Replace(discountedPriceStr, ",", ".", -1)
 		discountedPrice, err := strconv.ParseFloat(discountedPriceStr, 32)
