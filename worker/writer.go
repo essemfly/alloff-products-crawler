@@ -59,12 +59,14 @@ func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domai
 		filenames := CacheProductImages(foldername, pd)
 		pd.ImageFilenames = filenames
 
+		// Translating
 		row := GetProductTemplate(pd)
-		// for intrend
-		// row := intrend.CheckAlreadyHaveProductRow(prevProducts, pd)
-		// if row == nil {
-		// 	row = GetProductTemplate(pd)
-		// }
+		if prevProducts != nil {
+			row := intrend.CheckAlreadyHaveProductRow(prevProducts, pd)
+			if row == nil {
+				row = GetProductTemplate(pd)
+			}
+		}
 
 		if err := w.Write(row); err != nil {
 			log.Fatalln("error writing record to file", err)
@@ -76,8 +78,9 @@ func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domai
 }
 
 func GetProductTemplate(pd *domain.Product) []string {
+	translateOn := false
 	if pd.Source.Code == "INTREND" {
-		return intrend.GetIntrendTemplate(pd)
+		return intrend.GetIntrendTemplate(pd, translateOn)
 	} else if pd.Source.Code == "COLTORTI" {
 		return coltorti.GetColtortiTemplate(pd)
 	}

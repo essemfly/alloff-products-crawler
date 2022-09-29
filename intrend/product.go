@@ -11,7 +11,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func GetIntrendTemplate(pd *domain.Product) []string {
+func GetIntrendTemplate(pd *domain.Product, isTranslateOn bool) []string {
 	optionStrings := []string{}
 	optionQuantityStrings := []string{}
 	for _, optionName := range pd.SizeOptions {
@@ -19,17 +19,11 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 		optionQuantityStrings = append(optionQuantityStrings, strconv.Itoa(optionName.Quantity))
 	}
 
-	translatedTitle, err := utils.TranslateText(language.Korean.String(), pd.Name)
-	if err != nil {
-		log.Println("err occured on translating text")
-	}
-	translatedDescription, err := utils.TranslateText(language.Korean.String(), pd.Description)
-	if err != nil {
-		log.Println("err occured on translating text")
-	}
-	translatedMaterial, err := utils.TranslateText(language.Korean.String(), pd.Material)
-	if err != nil {
-		log.Println("err occured on translating text")
+	translatedTitle := pd.Name
+	translatedDescription := pd.Description
+	translatedMaterial := pd.Material
+	if isTranslateOn {
+		getTranslate(translatedTitle, translatedDescription, translatedMaterial)
 	}
 
 	names := []string{
@@ -135,4 +129,22 @@ func GetIntrendTemplate(pd *domain.Product) []string {
 		"",
 		"",
 	}
+}
+
+func getTranslate(name, description, material string) error {
+	name, err := utils.TranslateText(language.Korean.String(), name)
+	if err != nil {
+		log.Println("err occured on translating text")
+	}
+
+	description, err = utils.TranslateText(language.Korean.String(), description)
+	if err != nil {
+		log.Println("err occured on translating text")
+	}
+	material, err = utils.TranslateText(language.Korean.String(), material)
+	if err != nil {
+		log.Println("err occured on translating text")
+	}
+
+	return err
 }
