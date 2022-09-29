@@ -1,6 +1,7 @@
 package coltorti
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,7 +11,7 @@ import (
 	"github.com/essemfly/alloff-products/utils"
 )
 
-func GetColtortiTemplate(pd *domain.Product) []string {
+func GetColtortiTemplate(pd *domain.Product) ([]string, error) {
 	optionStrings := []string{}
 	optionQuantityStrings := []string{}
 	for _, optionName := range pd.SizeOptions {
@@ -53,6 +54,10 @@ func GetColtortiTemplate(pd *domain.Product) []string {
 	descImageHtml := fmt.Sprintf("<p>시즌: %s</p><p>색상: %s </p><p>소재: %s </p><p>제조국: %s </p>", pd.Season+" "+strconv.Itoa(pd.Year), pd.Color, pd.Material, pd.MadeIn)
 	for _, descImageUrl := range descImages {
 		descImageHtml = descImageHtml + "<img src='" + descImageUrl + "'>"
+	}
+
+	if len(pd.ImageFilenames) < 1 {
+		return nil, errors.New("no image files" + pd.ProductID + " " + pd.ProductURL)
 	}
 
 	return []string{
@@ -128,5 +133,5 @@ func GetColtortiTemplate(pd *domain.Product) []string {
 		"",
 		"",
 		"",
-	}
+	}, nil
 }

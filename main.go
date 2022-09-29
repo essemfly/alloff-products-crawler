@@ -28,7 +28,8 @@ func main() {
 	// productInfosMap = intrend.GetCurrentTranslatedInfo(outputFileNames)
 
 	log.Println("Length of products: ", len(products))
-	SpawnWorkers(products, productInfosMap)
+	translateOn := false
+	SpawnWorkers(products, productInfosMap, translateOn)
 }
 
 func SelectSources() []*domain.Source {
@@ -129,7 +130,7 @@ func CrawlIntrendFromPreviousTextFile(filename string) ([]*domain.Product, error
 	return nil, err
 }
 
-func SpawnWorkers(products []*domain.Product, prevProducts map[string][]string) {
+func SpawnWorkers(products []*domain.Product, prevProducts map[string][]string, translateOn bool) {
 	const numWorkers = 21
 
 	folders := worker.MakeFolders(len(products))
@@ -151,7 +152,7 @@ func SpawnWorkers(products []*domain.Product, prevProducts map[string][]string) 
 		<-done
 
 		// Include Image downloading + Writing excel files + Translating
-		go worker.WriteFile(workers, done, folder, products[idx*100:lastIndex], prevProducts)
+		go worker.WriteFile(workers, done, folder, products[idx*100:lastIndex], prevProducts, translateOn)
 	}
 
 	for c := 0; c < numWorkers; c++ {

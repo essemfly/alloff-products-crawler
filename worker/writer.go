@@ -2,6 +2,7 @@ package worker
 
 import (
 	"encoding/csv"
+	"errors"
 	"io/ioutil"
 	"log"
 	"os"
@@ -43,7 +44,8 @@ func LoadCsvFiles() []string {
 	return csvFiles
 }
 
-func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domain.Product, prevProducts map[string][]string) {
+// Include Image downloading + Writing excel files + Translating
+func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domain.Product, prevProducts map[string][]string, translateOn bool) {
 	filepath := foldername + "/" + "output.csv"
 	// f, err := os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 	f, err := os.Create(filepath)
@@ -59,12 +61,21 @@ func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domai
 		filenames := CacheProductImages(foldername, pd)
 		pd.ImageFilenames = filenames
 
-		// Translating
-		row := GetProductTemplate(pd)
+		row := []string{}
+		alreadyHaveRow := false
+
 		if prevProducts != nil {
-			row := intrend.CheckAlreadyHaveProductRow(prevProducts, pd)
-			if row == nil {
-				row = GetProductTemplate(pd)
+			row = intrend.CheckAlreadyHaveProductRow(prevProducts, pd)
+			if row != nil {
+				alreadyHaveRow = true
+			}
+		}
+
+		if !alreadyHaveRow {
+			row, err = GetProductTemplate(pd, translateOn)
+			if err != nil {
+				log.Println("err", err)
+				continue
 			}
 		}
 
@@ -77,14 +88,13 @@ func WriteFile(worker chan bool, done chan bool, foldername string, pds []*domai
 	done <- true
 }
 
-func GetProductTemplate(pd *domain.Product) []string {
-	translateOn := false
+func GetProductTemplate(pd *domain.Product, translateOn bool) ([]string, error) {
 	if pd.Source.Code == "INTREND" {
 		return intrend.GetIntrendTemplate(pd, translateOn)
 	} else if pd.Source.Code == "COLTORTI" {
 		return coltorti.GetColtortiTemplate(pd)
 	}
-	return []string{}
+	return []string{}, errors.New("cannot found source code")
 }
 
 func MakeFolders(numPds int) []string {

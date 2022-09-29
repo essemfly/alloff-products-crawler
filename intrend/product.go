@@ -1,6 +1,7 @@
 package intrend
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -11,7 +12,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func GetIntrendTemplate(pd *domain.Product, isTranslateOn bool) []string {
+func GetIntrendTemplate(pd *domain.Product, isTranslateOn bool) ([]string, error) {
 	optionStrings := []string{}
 	optionQuantityStrings := []string{}
 	for _, optionName := range pd.SizeOptions {
@@ -53,6 +54,10 @@ func GetIntrendTemplate(pd *domain.Product, isTranslateOn bool) []string {
 
 	for _, infoImgUrl := range infoImages {
 		descImageHtml = descImageHtml + "<img src='" + infoImgUrl + "'>"
+	}
+
+	if len(pd.ImageFilenames) < 1 {
+		return nil, errors.New("no image files" + pd.ProductID + " " + pd.ProductURL)
 	}
 
 	return []string{
@@ -128,7 +133,7 @@ func GetIntrendTemplate(pd *domain.Product, isTranslateOn bool) []string {
 		"",
 		"",
 		"",
-	}
+	}, nil
 }
 
 func getTranslate(name, description, material string) error {
